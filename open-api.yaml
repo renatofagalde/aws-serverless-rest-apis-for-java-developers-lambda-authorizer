@@ -1,0 +1,48 @@
+openapi: "3.0.1"
+info:
+  title: "lambda-authorizer"
+  version: "1.0"
+servers:
+  - url: "https://f13r6jdi1l.execute-api.us-east-1.amazonaws.com/{basePath}"
+    variables:
+      basePath:
+        default: "dev"
+paths:
+  /users/{userName}:
+    get:
+      parameters:
+        - name: "userName"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+        - name: "Authorization"
+          in: "header"
+          required: true
+          schema:
+            type: "string"
+      security:
+        - userappauthorizer: []
+      x-amazon-apigateway-request-validator: "Validate query string parameters and\
+        \ headers"
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        httpMethod: "POST"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:012821307542:function:lambda-authorizer-GetUserByUsernameHandlerFunction-UtVeumQakdrT/invocations"
+        passthroughBehavior: "when_no_match"
+components:
+  securitySchemes:
+    userappauthorizer:
+      type: "apiKey"
+      name: "Authorization"
+      in: "header"
+      x-amazon-apigateway-authtype: "custom"
+      x-amazon-apigateway-authorizer:
+        type: "request"
+        authorizerUri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:012821307542:function:lambda-authorizer-LambdaAuthorizerFunction-X2MPTjZna0fY/invocations"
+        authorizerResultTtlInSeconds: 0
+        identitySource: "method.request.header.Authorization"
+x-amazon-apigateway-request-validators:
+  Validate query string parameters and headers:
+    validateRequestParameters: true
+    validateRequestBody: false
