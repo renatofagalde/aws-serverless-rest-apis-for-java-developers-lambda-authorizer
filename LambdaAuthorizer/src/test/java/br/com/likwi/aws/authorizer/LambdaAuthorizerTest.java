@@ -1,4 +1,4 @@
-package com.appsdeveloperblog.aws.lambda.authorizer;
+package br.com.likwi.aws.authorizer;
 
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import static org.junit.Assert.assertEquals;

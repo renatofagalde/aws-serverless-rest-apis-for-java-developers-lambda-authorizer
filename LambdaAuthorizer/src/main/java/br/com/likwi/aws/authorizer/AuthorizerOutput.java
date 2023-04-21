@@ -1,4 +1,4 @@
-package com.appsdeveloperblog.aws.lambda.authorizer;
+package br.com.likwi.aws.authorizer;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

@@ -3,15 +3,15 @@ info:
   title: "lambda-authorizer"
   version: "1.0"
 servers:
-  - url: "https://f13r6jdi1l.execute-api.us-east-1.amazonaws.com/{basePath}"
+  - url: "https://m5dwgp3727.execute-api.us-east-1.amazonaws.com/{basePath}"
     variables:
       basePath:
         default: "dev"
 paths:
-  /users/{userName}:
+  /users/{user_name}:
     get:
       parameters:
-        - name: "userName"
+        - name: "user_name"
           in: "path"
           required: true
           schema:
@@ -28,7 +28,7 @@ paths:
       x-amazon-apigateway-integration:
         type: "aws_proxy"
         httpMethod: "POST"
-        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:012821307542:function:lambda-authorizer-GetUserByUsernameHandlerFunction-UtVeumQakdrT/invocations"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:012821307542:function:lambda-authorizer-GetUserByUsernameHandlerFunction-yQR1Jh9omMEa/invocations"
         passthroughBehavior: "when_no_match"
 components:
   securitySchemes:
@@ -39,7 +39,7 @@ components:
       x-amazon-apigateway-authtype: "custom"
       x-amazon-apigateway-authorizer:
         type: "request"
-        authorizerUri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:012821307542:function:lambda-authorizer-LambdaAuthorizerFunction-X2MPTjZna0fY/invocations"
+        authorizerUri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:012821307542:function:lambda-authorizer-LambdaAuthorizerFunction-Ok2ezxSp3GU6/invocations"
         authorizerResultTtlInSeconds: 0
         identitySource: "method.request.header.Authorization"
 x-amazon-apigateway-request-validators:
