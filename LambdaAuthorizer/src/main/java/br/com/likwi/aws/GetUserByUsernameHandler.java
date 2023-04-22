@@ -30,7 +30,7 @@ public class GetUserByUsernameHandler implements RequestHandler<APIGatewayProxyR
         headers.put("Lambda-Version", context.getFunctionVersion());
         LambdaLogger logger = context.getLogger();
 
-        logger.log("GetUserByUsernameHandler in authorizer #3 "+ LocalDateTime.now(ZoneId.of(AMERICA_SAO_PAULO)));
+        logger.log("GetUserByUsernameHandler in authorizer #5 "+ LocalDateTime.now(ZoneId.of(AMERICA_SAO_PAULO)));
 
         input.getPathParameters()
                 .entrySet().stream()

@@ -26,7 +26,7 @@ public class LambdaAuthorizer implements RequestHandler<APIGatewayProxyRequestEv
     public AuthorizerOutput handleRequest(final APIGatewayProxyRequestEvent input, final Context context) {
 
         LambdaLogger logger = context.getLogger();
-        logger.log("\n\n\t*** REQUISICAO INICIADA #3 "+LocalDateTime.now(ZoneId.of(AMERICA_SAO_PAULO))+" *** " + this.getClass().getName());
+        logger.log("\n\n\t*** REQUISICAO INICIADA #5 "+LocalDateTime.now(ZoneId.of(AMERICA_SAO_PAULO))+" *** " + this.getClass().getName());
 
         Gson result = new Gson();
         logger.log(result.toJson(input, APIGatewayProxyRequestEvent.class));
@@ -40,7 +40,7 @@ public class LambdaAuthorizer implements RequestHandler<APIGatewayProxyRequestEv
         logger.log(String.format("User in pathParameters -> [%s]", userName));
 
         String EFFECT = "Allow";
-        if (userName.equals("123")) {
+        if (userName.equals("123") || userName.equals("negado")) {
             EFFECT = "Deny";
         }
         APIGatewayProxyRequestEvent.ProxyRequestContext proxyRequestContext =
