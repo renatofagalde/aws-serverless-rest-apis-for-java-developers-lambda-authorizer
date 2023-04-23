@@ -1,14 +1,14 @@
 package br.com.likwi.aws;
 
+import br.com.likwi.aws.service.CognitoUserService;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,45 +21,42 @@ public class GetUserByUsernameHandler implements RequestHandler<APIGatewayProxyR
 
     public static final String AMERICA_SAO_PAULO = "America/Sao_Paulo";
 
-    @Override
-    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
-        Gson gson = new Gson();
-        Map<String, String> headers = new HashMap<>();
+    private final CognitoUserService cognitoUserService;
+
+    private static Map<String, String> headers = new HashMap<>();
+
+    private static APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
+
+    public GetUserByUsernameHandler() {
+        this.cognitoUserService = new CognitoUserService(System.getenv("AWS_REGION"));
+    }
+
+    static {
         headers.put("Content-Type", APPLICATION_JSON);
         headers.put("X-Custom-Header", APPLICATION_JSON);
-        headers.put("Lambda-Version", context.getFunctionVersion());
+        response.withStatusCode(200)
+                .withHeaders(headers);
+    }
+
+    @Override
+    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
+
+        Gson gson = new Gson();
         LambdaLogger logger = context.getLogger();
 
-        logger.log("GetUserByUsernameHandler in authorizer #5 "+ LocalDateTime.now(ZoneId.of(AMERICA_SAO_PAULO)));
-
-        input.getPathParameters()
-                .entrySet().stream()
-                .forEach(e -> {
-                    logger.log(String.format("[input.getPathParameters()]\tKey %s -> [%s]",e.getKey(),e.getValue()));
-                });
-
-        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent()
-                .withHeaders(headers);
-
         try {
-            String userName = input.getPathParameters().get("user_name");
-            HashMap<String, String> responseHeaders = new HashMap<>();
-            responseHeaders.put("Content-Type", APPLICATION_JSON);
-            responseHeaders.put("Lambda-Version", context.getFunctionVersion());
 
-            response
-                    .withHeaders(responseHeaders)
-                    .withStatusCode(200)
-                    .withBody("{\"nome\":\""+userName+"__getUserHandler\"}");
+            response.withBody(
+                    gson.toJson(this.cognitoUserService.getUserByUserName(
+                            input.getPathParameters().get("user_name"),
+                            System.getenv("POOL_ID"))
+                    , JsonObject.class));
         } catch (Exception e) {
             logger.log("Exception\t" + e.getLocalizedMessage());
-            response.withBody("{\"erro\": \"" + e.getLocalizedMessage() + "\"}");
+            response.withBody(ErrorResponse.build(new ErrorResponse(e.getLocalizedMessage())));
             response.withStatusCode(500);
-
         }
 
-        logger.log("GetUserByUsernameHandler response  -> " +
-                gson.toJson(response, APIGatewayProxyResponseEvent.class));
         return response;
     }
 }
