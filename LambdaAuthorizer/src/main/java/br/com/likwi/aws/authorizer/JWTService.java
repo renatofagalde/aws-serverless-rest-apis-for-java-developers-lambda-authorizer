@@ -13,10 +13,13 @@ public class JWTService {
 
         Algorithm algorithm = Algorithm.RSA256(awsCognitoRSAKeyProvider);
         String issuer = String.format("https://cognito-idp.%s.amazonaws.com/%s",
-                validateJWTForUser.getRegion(), validateJWTForUser.getPrincipalId());
+                validateJWTForUser.getRegion(), validateJWTForUser.getUserPoolId());
+
+        System.out.println("issuer = " + issuer);
+
         JWTVerifier jwtVerifier = JWT.require(algorithm)
                 .withSubject(validateJWTForUser.getPrincipalId())
-                .withSubject(validateJWTForUser.getAudience())
+                .withAudience(validateJWTForUser.getAudience())
                 .withIssuer(issuer)
                 .withClaim("token_use", "id")
                 .build();
