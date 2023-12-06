@@ -4,60 +4,62 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
-import br.com.likwi.aws.authorizer.AuthorizerOutput;
-import br.com.likwi.aws.authorizer.PolicyDocument;
-import br.com.likwi.aws.authorizer.Statement;
-import com.sun.tools.javac.util.List;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import com.google.gson.Gson;
 
-public class GetUserByUsernameHandler implements RequestHandler<APIGatewayProxyRequestEvent, AuthorizerOutput> {
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.HashMap;
+import java.util.Map;
+
+public class GetUserByUsernameHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+
+    public static final String APPLICATION_JSON = "application/json";
 
     public static final String VERSION = "2012-10-17";
+    public static final String EXECUTE_API_INVOKE = "execute-api:Invoke";
+
+    public static final String AMERICA_SAO_PAULO = "America/Sao_Paulo";
 
     @Override
-    public AuthorizerOutput handleRequest(APIGatewayProxyRequestEvent input, Context context) {
-
+    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
+        Gson gson = new Gson();
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", APPLICATION_JSON);
+        headers.put("X-Custom-Header", APPLICATION_JSON);
+        headers.put("Lambda-Version", context.getFunctionVersion());
         LambdaLogger logger = context.getLogger();
-        logger.log("\n\n\t*** REQUISICAO INICIADA 5 *** " + this.getClass().getName());
-        String userName = input.getPathParameters().get("user_name");
-        logger.log(String.format("User in pathParameters -> [%s]", userName));
-        String effect = "Allow";
-        if (userName.equals("123")) {
-            effect = "Deny";
+
+        logger.log("GetUserByUsernameHandler in authorizer #3 "+ LocalDateTime.now(ZoneId.of(AMERICA_SAO_PAULO)));
+
+        input.getPathParameters()
+                .entrySet().stream()
+                .forEach(e -> {
+                    logger.log(String.format("[input.getPathParameters()]\tKey %s -> [%s]",e.getKey(),e.getValue()));
+                });
+
+        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent()
+                .withHeaders(headers);
+
+        try {
+            String userName = input.getPathParameters().get("user_name");
+            HashMap<String, String> responseHeaders = new HashMap<>();
+            responseHeaders.put("Content-Type", APPLICATION_JSON);
+            responseHeaders.put("Lambda-Version", context.getFunctionVersion());
+
+            response
+                    .withHeaders(responseHeaders)
+                    .withStatusCode(200)
+                    .withBody("{\"nome\":\""+userName+"__getUserHandler\"}");
+        } catch (Exception e) {
+            logger.log("Exception\t" + e.getLocalizedMessage());
+            response.withBody("{\"erro\": \"" + e.getLocalizedMessage() + "\"}");
+            response.withStatusCode(500);
+
         }
-        APIGatewayProxyRequestEvent.ProxyRequestContext proxyRequestContext =
-                input.getRequestContext();
-        logger.log("proxyRequestContext.getAccountId() = " + proxyRequestContext.getAccountId());
-        logger.log("proxyRequestContext.getApiId() = " + proxyRequestContext.getApiId());
-        logger.log("proxyRequestContext.getStage() = " + proxyRequestContext.getStage());
-        logger.log("proxyRequestContext.getHttpMethod() = " + proxyRequestContext.getHttpMethod());
 
-        String arn = String.format("arn:aws:execute-api:%s:%s:%s/%s/%s/%s",
-                System.getenv("AWS_REGION"),
-                proxyRequestContext.getAccountId(),
-                proxyRequestContext.getApiId(),
-                proxyRequestContext.getStage(),
-                proxyRequestContext.getHttpMethod(),
-                "*");
-
-        Statement statement = Statement.builder()
-                .action("execute-api:Invoke")
-                .effect(effect)
-                .resource(arn)
-                .build();
-
-        PolicyDocument policyDocument = PolicyDocument.builder()
-                .version(VERSION)
-                .statements(List.of(statement))
-                .build();
-
-        AuthorizerOutput authorizerOutput = AuthorizerOutput.builder()
-                .principalId(userName)
-                .policyDocument(policyDocument)
-                .build();
-
-//        Gson responseBody = new Gson();
-//        logger.log(String.format("Final da requisição -> [%s]", responseBody.toJson(authorizerOutput, AuthorizerOutput.class)));
-
-        return authorizerOutput;
+        logger.log("GetUserByUsernameHandler response  -> " +
+                gson.toJson(response, APIGatewayProxyResponseEvent.class));
+        return response;
     }
 }

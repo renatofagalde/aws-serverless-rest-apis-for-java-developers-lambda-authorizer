@@ -3,7 +3,7 @@ info:
   title: "lambda-authorizer"
   version: "1.0"
 servers:
-  - url: "https://m5dwgp3727.execute-api.us-east-1.amazonaws.com/{basePath}"
+  - url: "https://6bjykgdze0.execute-api.us-east-1.amazonaws.com/{basePath}"
     variables:
       basePath:
         default: "dev"
@@ -22,26 +22,27 @@ paths:
           schema:
             type: "string"
       security:
-        - userappauthorizer: []
+        - authorizer-token-44: []
       x-amazon-apigateway-request-validator: "Validate query string parameters and\
         \ headers"
       x-amazon-apigateway-integration:
-        type: "aws_proxy"
         httpMethod: "POST"
-        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:012821307542:function:lambda-authorizer-GetUserByUsernameHandlerFunction-yQR1Jh9omMEa/invocations"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:012821307542:function:lambda-authorizer-GetUserByUsernameHandlerFunction-d5cWCHE3r87Z/invocations"
         passthroughBehavior: "when_no_match"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
 components:
   securitySchemes:
-    userappauthorizer:
+    authorizer-token-44:
       type: "apiKey"
       name: "Authorization"
       in: "header"
       x-amazon-apigateway-authtype: "custom"
       x-amazon-apigateway-authorizer:
-        type: "request"
-        authorizerUri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:012821307542:function:lambda-authorizer-LambdaAuthorizerFunction-Ok2ezxSp3GU6/invocations"
+        authorizerUri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:012821307542:function:lambda-authorizer-LambdaAuthorizerFunction-HubEx4hmMa98/invocations"
         authorizerResultTtlInSeconds: 0
         identitySource: "method.request.header.Authorization"
+        type: "request"
 x-amazon-apigateway-request-validators:
   Validate query string parameters and headers:
     validateRequestParameters: true
